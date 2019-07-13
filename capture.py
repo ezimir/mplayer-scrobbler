@@ -3,7 +3,28 @@
 
 
 
+import re
 import sys
+
+
+def analyze(stream_info):
+    """Process ICY info and trigger DB save if one of recognized formats was used."""
+
+    info_re = r".*?StreamTitle='(?P<info>.*?)'.*?"
+    info_match = re.match(info_re, stream_info)
+    if not info_match:
+        return
+
+    info = info_match.groupdict()["info"]
+
+    recognized_patterns = [
+        "(?P<artist>.*)\s*-\s*(?P<title>.*)",  # basic Track - Title format
+    ]
+
+    for pattern in recognized_patterns:
+        pattern_match = re.match(pattern, info)
+        if pattern_match:
+            print("TRACK DETECTED: {}".format(pattern_match.groupdict()))
 
 
 def capture():
@@ -19,7 +40,7 @@ def capture():
         buff += char
         if buff.endswith("\n"):
             if "ICY" in buff:
-                print(f"Got ICY INFO: {buff}")
+                analyze(buff)
 
             buff = ""
 
