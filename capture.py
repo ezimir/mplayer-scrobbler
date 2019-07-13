@@ -4,7 +4,32 @@
 
 
 import re
+import sqlite3
 import sys
+
+
+DB_PATH = '/tmp/scrobbles.db'
+
+DB_CREATE = """
+    CREATE TABLE tracks (
+        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+        `artist` TEXT,
+        `title` TEXT,
+        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+"""
+
+
+def submit(artist, title):
+    """Save track info into external DB for later processing."""
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    query = "INSERT INTO tracks (`artist`, `title`) VALUES (:artist, :title);"
+    c.execute(query, locals())
+    conn.commit()
+    conn.close()
+    print(f" - Saved for scrobbling: {artist} - {title}")
 
 
 def analyze(stream_info):
@@ -24,7 +49,7 @@ def analyze(stream_info):
     for pattern in recognized_patterns:
         pattern_match = re.match(pattern, info)
         if pattern_match:
-            print("TRACK DETECTED: {}".format(pattern_match.groupdict()))
+            submit(**pattern_match.groupdict())
 
 
 def capture():
@@ -57,5 +82,4 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("Bye.")
-
 
