@@ -19,14 +19,20 @@ DB_CREATE = """
     );
 """
 
+DB_INSERT = """
+    INSERT INTO tracks
+        (`artist`, `title`)
+    VALUES
+        (:artist, :title);
+"""
+
 
 def submit(artist, title):
     """Save track info into external DB for later processing."""
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    query = "INSERT INTO tracks (`artist`, `title`) VALUES (:artist, :title);"
-    c.execute(query, locals())
+    c.execute(DB_INSERT, locals())
     conn.commit()
     conn.close()
     print(f" - Saved for scrobbling: {artist} - {title}")
