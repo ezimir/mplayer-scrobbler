@@ -32,7 +32,7 @@ class Scrobbler(object):
     def submit(self, artist, title):
         """Save track info into external DB file for later processing."""
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute(DB_INSERT, locals())
         conn.commit()
