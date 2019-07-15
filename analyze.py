@@ -9,6 +9,13 @@ import re
 class ICYAnalyzer(object):
     """Wrapper for handling ICY text analysis."""
 
+    info_re = r".*?StreamTitle='(?P<info>.*?)'.*?"
+
+    track_patterns = [
+        "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",  # afterhours.fm
+        "(?P<artist>.*)\s+-\s+(?P<title>.*)",  # basic Track - Title format
+    ]
+
     def __init__(self, trigger_callback):
         self.submit = trigger_callback
 
@@ -17,23 +24,18 @@ class ICYAnalyzer(object):
 
         if "ICY" in text:
             self.analyze(text)
+            self.analyze_track(text)
 
-    def analyze(self, stream_info):
+    def analyze_track(self, stream_info):
         """Process ICY info and trigger DB save if one of recognized formats was used."""
 
-        info_re = r".*?StreamTitle='(?P<info>.*?)'.*?"
-        info_match = re.match(info_re, stream_info)
+        info_match = re.match(self.info_re, stream_info)
         if not info_match:
             return
 
         info = info_match.groupdict()["info"]
 
-        recognized_patterns = [
-            "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",  # afterhours.fm
-            "(?P<artist>.*)\s+-\s+(?P<title>.*)",  # basic Track - Title format
-        ]
-
-        for pattern in recognized_patterns:
+        for pattern in self.track_patterns:
             pattern_match = re.match(pattern, info)
             if pattern_match:
                 self.submit(**pattern_match.groupdict())
