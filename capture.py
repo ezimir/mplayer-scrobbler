@@ -3,47 +3,18 @@
 
 
 
-import re
-import sqlite3
 import sys
 
 from analyze import ICYAnalyzer
+from scrobble import Scrobbler
 
-
-DB_PATH = '/tmp/scrobbles.db'
-
-DB_CREATE = """
-    CREATE TABLE tracks (
-        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-        `artist` TEXT,
-        `title` TEXT,
-        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-"""
-
-DB_INSERT = """
-    INSERT INTO tracks
-        (`artist`, `title`)
-    VALUES
-        (:artist, :title);
-"""
-
-
-def submit(artist, title):
-    """Save track info into external DB for later processing."""
-
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute(DB_INSERT, locals())
-    conn.commit()
-    conn.close()
-    print(f" - Saved for scrobbling: {artist} - {title}")
 
 
 def capture():
-    """Read from stdin and trigger ICY analysis if mplayer outputs it."""
+    """Read from stdin and pass mplayer output to ICY text analyzer."""
 
-    analyzer = ICYAnalyzer(trigger_callback = submit)
+    scrobbler = Scrobbler('/tmp/scrobbles.db')
+    analyzer = ICYAnalyzer(trigger_callback = scrobbler.submit)
 
     buff = ""
     while True:
