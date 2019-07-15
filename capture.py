@@ -49,6 +49,7 @@ def analyze(stream_info):
     info = info_match.groupdict()["info"]
 
     recognized_patterns = [
+        "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",  # afterhours.fm
         "(?P<artist>.*)\s+-\s+(?P<title>.*)",  # basic Track - Title format
     ]
 
