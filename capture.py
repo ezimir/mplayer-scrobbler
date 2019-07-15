@@ -57,6 +57,7 @@ def analyze(stream_info):
         pattern_match = re.match(pattern, info)
         if pattern_match:
             submit(**pattern_match.groupdict())
+            break
 
 
 def capture():
