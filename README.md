@@ -3,5 +3,5 @@
 Usage:
 
 ```sh
-$ mplayer ... | /path/to/capture.py
+$ mplayer ... | /path/to/env/python /path/to/capture.py
 ```
