@@ -10,7 +10,7 @@ class ICYAnalyzer(object):
     """Wrapper for handling ICY text analysis."""
 
     name_re = r"Name\s+:\s+(?P<name>.*)"
-    info_re = r".*?StreamTitle='(?P<info>.*?)'.*?"
+    info_re = r".*?StreamTitle='(?P<info>.*?)';"
 
     track_patterns = [
         "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",  # afterhours.fm
