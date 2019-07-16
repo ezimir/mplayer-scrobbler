@@ -26,8 +26,9 @@ DB_INSERT = """
 class Scrobbler(object):
     """Wrapper for handling track submission to Last.FM"""
 
-    def __init__(self, db_path):
+    def __init__(self, db_path, creds_path):
         self.db_path = db_path
+        self.creds_path = creds_path
 
     def submit(self, artist, title):
         """Save track info into external DB file for later processing."""
