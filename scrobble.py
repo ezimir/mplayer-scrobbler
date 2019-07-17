@@ -4,44 +4,24 @@
 
 import json
 import pylast
-import sqlite3
 
 from datetime import datetime
 
+from db import TrackDB
 
-
-DB_CREATE = """
-    CREATE TABLE tracks (
-        `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-        `artist` TEXT,
-        `title` TEXT,
-        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-"""
-
-DB_INSERT = """
-    INSERT INTO tracks
-        (`artist`, `title`)
-    VALUES
-        (:artist, :title);
-"""
 
 
 class Scrobbler(object):
     """Wrapper for handling track submission to Last.FM."""
 
     def __init__(self, db_path, creds_path):
-        self.db_path = db_path
+        self.db = TrackDB(db_path)
         self.creds_path = creds_path
 
     def save_to_db(self, artist, title):
         """Save given track details to local DB."""
 
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute(DB_INSERT, locals())
-        conn.commit()
-        conn.close()
+        self.db.insert(artist, title)
         print(f" - Saved for scrobbling: {artist} - {title}")
 
         return True  # TODO: detect duplicates, etc.
