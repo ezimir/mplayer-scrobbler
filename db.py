@@ -59,7 +59,7 @@ class TrackDB(object):
     """Wrapper for handling SQLite DB file."""
 
     def __init__(self, file_path):
-        self.file_path = file_path
+        self.dbcontext = DBContext(file_path)
 
         if not os.path.isfile(file_path):
             self._query(DB_CREATE)
@@ -67,13 +67,13 @@ class TrackDB(object):
     def _query(self, query, **kwargs):
         """Execute query with given parameters."""
 
-        with DBContext(self.file_path) as c:
+        with self.dbcontext as c:
             c.execute(query, kwargs)
 
     def _select(self, query, **kwargs):
         """Execute select with given parameters and return list of dictionaries."""
 
-        with DBContext(self.file_path) as c:
+        with self.dbcontext as c:
             c.execute(query, kwargs)
             results = c.fetchall()
             columns = [name for (name, *_) in c.description]
@@ -83,7 +83,7 @@ class TrackDB(object):
     def insert(self, **kwargs):
         """Execute insert query with given track info."""
 
-        with DBContext(self.file_path) as c:
+        with self.dbcontext as c:
             c.execute(DB_INSERT, kwargs)
             c.execute(DB_SELECT_LAST_INSERT_ID)
             last_id = c.fetchone()
