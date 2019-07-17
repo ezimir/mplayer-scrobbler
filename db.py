@@ -23,6 +23,13 @@ DB_INSERT = """
         (:artist, :title);
 """
 
+DB_SELECT_LAST_INSERT_ID = """
+    SELECT
+        seq
+    FROM sqlite_sequence
+    WHERE name="tracks";
+"""
+
 DB_SELECT_LAST_TRACK = """
     SELECT
         *
@@ -55,7 +62,7 @@ class TrackDB(object):
         self.file_path = file_path
 
         if not os.path.isfile(file_path):
-            self.create_db()
+            self._query(DB_CREATE)
 
     def _query(self, query, **kwargs):
         """Execute query with given parameters."""
@@ -73,15 +80,14 @@ class TrackDB(object):
 
         return [dict(zip(columns, result)) for result in results]
 
-    def create_db(self):
-        """Execute DB creation query."""
-
-        self._query(DB_CREATE)
-
     def insert(self, **kwargs):
         """Execute insert query with given track info."""
 
-        self._query(DB_INSERT, **kwargs)
+        with DBContext(self.file_path) as c:
+            c.execute(DB_INSERT, kwargs)
+            c.execute(DB_SELECT_LAST_INSERT_ID)
+            last_id = c.fetchone()
+            return last_id[0]
 
     def can_submit(self, artist, title):
         """Checke whether given track details can be scrobbled."""

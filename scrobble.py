@@ -39,7 +39,7 @@ class Scrobbler(object):
         """Process track info (save locally and submit if possible)."""
 
         if self.db.can_submit(artist, title):
-            self.db.insert(
+            track_id = self.db.insert(
                 artist = artist,
                 title = title,
             )
