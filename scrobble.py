@@ -18,14 +18,6 @@ class Scrobbler(object):
         self.db = TrackDB(db_path)
         self.creds_path = creds_path
 
-    def save_to_db(self, artist, title):
-        """Save given track details to local DB."""
-
-        self.db.insert(artist, title)
-        print(f" - Saved for scrobbling: {artist} - {title}")
-
-        return True  # TODO: detect duplicates, etc.
-
     def scrobble(self, artist, title):
         """Submit given track details to Last.FM."""
 
@@ -46,7 +38,10 @@ class Scrobbler(object):
     def submit(self, artist, title):
         """Process track info (save locally and submit if possible)."""
 
-        safe_to_submit = self.save_to_db(artist, title)
-        if safe_to_submit:
+        if self.db.can_submit(artist, title):
+            self.db.insert(
+                artist = artist,
+                title = title,
+            )
             self.scrobble(artist, title)
 
