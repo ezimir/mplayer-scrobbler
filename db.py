@@ -12,7 +12,8 @@ DB_CREATE = """
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `artist` TEXT,
         `title` TEXT,
-        `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP
+        `played_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `playback_done_at` DATETIME
     );
 """
 
@@ -35,7 +36,7 @@ DB_SELECT_LAST_TRACK = """
         *
     FROM tracks
         ORDER BY
-            timestamp DESC
+            `played_at` DESC
         LIMIT 1;
 """
 

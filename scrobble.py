@@ -5,7 +5,7 @@
 import json
 import pylast
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from db import TrackDB
 
@@ -34,6 +34,7 @@ class Scrobbler(object):
         api.scrobble(artist, title, timestamp)
         track = api.get_track(artist, title)
         print(f" - Scrobbled: {track}")
+        return track
 
     def submit(self, artist, title):
         """Process track info (save locally and submit if possible)."""
@@ -43,5 +44,13 @@ class Scrobbler(object):
                 artist = artist,
                 title = title,
             )
-            self.scrobble(artist, title)
+            track = self.scrobble(artist, title)
+
+            now = datetime.utcnow().replace(microsecond = 0)
+            track_duration = track.get_duration() / 1000
+            playback_done = now + timedelta(seconds = track_duration)
+            self.db.update(
+                track_id,
+                playback_done_at = playback_done,
+            )
 
