@@ -23,7 +23,7 @@ DB_INSERT = """
         (:artist, :title);
 """
 
-DB_SELECT_LAST = """
+DB_SELECT_LAST_TRACK = """
     SELECT
         *
     FROM tracks
@@ -32,6 +32,20 @@ DB_SELECT_LAST = """
         LIMIT 1;
 """
 
+
+class DBContext(object):
+
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def __enter__(self):
+        self.connection = sqlite3.connect(self.file_path)
+        self.cursor = self.connection.cursor()
+        return self.cursor
+
+    def __exit__(self, type, value, traceback):
+        self.connection.commit()
+        self.connection.close()
 
 
 class TrackDB(object):
@@ -46,22 +60,16 @@ class TrackDB(object):
     def _query(self, query, **kwargs):
         """Execute query with given parameters."""
 
-        conn = sqlite3.connect(self.file_path)
-        c = conn.cursor()
-        c.execute(query, kwargs)
-        conn.commit()
-        conn.close()
+        with DBContext(self.file_path) as c:
+            c.execute(query, kwargs)
 
     def _select(self, query, **kwargs):
         """Execute select with given parameters and return list of dictionaries."""
 
-        conn = sqlite3.connect(self.file_path)
-        c = conn.cursor()
-        c.execute(query, kwargs)
-        results = c.fetchall()
-        columns = [name for (name, *_) in c.description]
-        conn.commit()
-        conn.close()
+        with DBContext(self.file_path) as c:
+            c.execute(query, kwargs)
+            results = c.fetchall()
+            columns = [name for (name, *_) in c.description]
 
         return [dict(zip(columns, result)) for result in results]
 
@@ -78,7 +86,7 @@ class TrackDB(object):
     def can_submit(self, artist, title):
         """Checke whether given track details can be scrobbled."""
 
-        last = self._select(DB_SELECT_LAST)
+        last = self._select(DB_SELECT_LAST_TRACK)
         if not last:
             return True
 
