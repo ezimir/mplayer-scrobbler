@@ -89,8 +89,26 @@ class TrackDB(object):
             last_id = c.fetchone()
             return last_id[0]
 
+    def update(self, track_id, **kwargs):
+        """Execute update query for selected track with given track info."""
+
+        columns = [f"`{column}`=:{column}" for column in kwargs.keys()]
+        columns = ", ".join(columns)
+        query = f"""
+            UPDATE
+                tracks
+            SET
+                {columns}
+            WHERE
+                id=:track_id;
+        """
+
+        kwargs['track_id'] = track_id
+        with self.dbcontext as c:
+            c.execute(query, kwargs)
+
     def can_submit(self, artist, title):
-        """Checke whether given track details can be scrobbled."""
+        """Check whether given track details can be scrobbled."""
 
         last = self._select(DB_SELECT_LAST_TRACK)
         if not last:
