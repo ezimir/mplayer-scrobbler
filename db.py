@@ -5,6 +5,8 @@
 import os.path
 import sqlite3
 
+from datetime import datetime, timedelta
+
 
 
 DB_CREATE = """
@@ -12,8 +14,8 @@ DB_CREATE = """
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `artist` TEXT,
         `title` TEXT,
-        `played_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-        `playback_done_at` DATETIME
+        `played_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `playback_done_at` TIMESTAMP
     );
 """
 
@@ -41,13 +43,21 @@ DB_SELECT_LAST_TRACK = """
 """
 
 
+
+DEFAULT_DURATION = 3 * 60  # assume default track length is 3 minutes
+
+
+
 class DBContext(object):
 
     def __init__(self, file_path):
         self.file_path = file_path
 
     def __enter__(self):
-        self.connection = sqlite3.connect(self.file_path)
+        self.connection = sqlite3.connect(
+            self.file_path,
+            detect_types = sqlite3.PARSE_DECLTYPES,
+        )
         self.cursor = self.connection.cursor()
         return self.cursor
 
@@ -104,7 +114,7 @@ class TrackDB(object):
                 id=:track_id;
         """
 
-        kwargs['track_id'] = track_id
+        kwargs["track_id"] = track_id
         with self.dbcontext as c:
             c.execute(query, kwargs)
 
@@ -117,7 +127,16 @@ class TrackDB(object):
 
         last = last[0]
 
-        if last['artist'] == artist and last['title'] == title:
+        if last["artist"] == artist and last["title"] == title:
+            playback_done = last["playback_done_at"]
+            if not playback_done:
+                playback_done = last["played_at"] + timedelta(seconds = DEFAULT_DURATION)
+
+            now = datetime.utcnow().replace(microsecond = 0)
+            # only allow re-scrobble of last track, if expected duration already passed
+            if now > last['playback_done_at']:
+                return True
+
             return False
 
         return True
