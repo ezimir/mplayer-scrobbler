@@ -16,23 +16,21 @@ class Scrobbler(object):
 
     def __init__(self, db_path, creds_path):
         self.db = TrackDB(db_path)
-        self.creds_path = creds_path
 
-    def scrobble(self, artist, title):
-        """Submit given track details to Last.FM."""
-
-        creds = json.load(open(self.creds_path))
-
-        api = pylast.LastFMNetwork(
+        creds = json.load(open(creds_path))
+        self.api = pylast.LastFMNetwork(
             api_key = creds["APIKey"],
             api_secret = creds["APISecret"],
             username = creds["UserName"],
             password_hash = creds["PasswordHash"],
         )
 
+    def scrobble(self, artist, title):
+        """Submit given track details to Last.FM."""
+
         timestamp = int(datetime.now().timestamp())
-        api.scrobble(artist, title, timestamp)
-        track = api.get_track(artist, title)
+        self.api.scrobble(artist, title, timestamp)
+        track = self.api.get_track(artist, title)
         print(f" - Scrobbled: {track}")
         return track
 
