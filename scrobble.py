@@ -30,6 +30,7 @@ class Scrobbler(object):
 
         timestamp = int(datetime.now().timestamp())
         self.api.scrobble(artist, title, timestamp)
+
         track = self.api.get_track(artist, title)
         print(f" - Scrobbled: {track}")
         return track
@@ -44,11 +45,19 @@ class Scrobbler(object):
             )
             track = self.scrobble(artist, title)
 
-            now = datetime.utcnow().replace(microsecond = 0)
-            track_duration = track.get_duration() / 1000
-            playback_done = now + timedelta(seconds = track_duration)
-            self.db.update(
-                track_id,
-                playback_done_at = playback_done,
-            )
+            track_duration = None
+
+            try:
+                track_duration = track.get_duration() / 1000
+
+            except pylast.WSError as e:
+                print(f" - Exception: {e}")
+
+            if track_duration:
+                now = datetime.utcnow().replace(microsecond = 0)
+                playback_done = now + timedelta(seconds = track_duration)
+                self.db.update(
+                    track_id,
+                    playback_done_at = playback_done,
+                )
 
