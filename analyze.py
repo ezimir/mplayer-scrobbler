@@ -13,8 +13,9 @@ class ICYAnalyzer(object):
     info_re = r".*?StreamTitle='(?P<info>.*?)';"
 
     track_patterns = [
-        "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",  # afterhours.fm
-        "(?P<artist>.*)\s+-\s+(?P<title>.*)",  # basic Track - Title format
+        "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",   # afterhours.fm
+        "(?P<artist>.*)\s+-\s+(?P<title>.*?)\[[^[]+\]",  # tracks with notes in square brackets after title
+        "(?P<artist>.*)\s+-\s+(?P<title>.*)",            # basic Track - Title format
     ]
 
     source = None
