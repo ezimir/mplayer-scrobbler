@@ -14,7 +14,7 @@ class ICYAnalyzer(object):
 
     track_patterns = [
         "(?P<artist>.*)\s+-\s+(?P<title>.*) on AH.FM",   # afterhours.fm
-        "(?P<artist>.*)\s+-\s+(?P<title>.*?)\[[^[]+\]",  # tracks with notes in square brackets after title
+        "(?P<artist>.*)\s+-\s+(?P<title>.*?)\s+\[[^[]+\]",  # tracks with notes in square brackets after title
         "(?P<artist>.*)\s+-\s+(?P<title>.*)",            # basic Track - Title format
     ]
 
