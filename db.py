@@ -134,7 +134,7 @@ class TrackDB(object):
 
             now = datetime.utcnow().replace(microsecond = 0)
             # only allow re-scrobble of last track, if expected duration already passed
-            if now > last['playback_done_at']:
+            if now > playback_done:
                 return True
 
             return False
