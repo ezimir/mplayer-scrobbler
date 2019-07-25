@@ -19,13 +19,6 @@ DB_CREATE = """
     );
 """
 
-DB_INSERT = """
-    INSERT INTO tracks
-        (`artist`, `title`)
-    VALUES
-        (:artist, :title);
-"""
-
 DB_SELECT_LAST_INSERT_ID = """
     SELECT
         seq
@@ -94,8 +87,18 @@ class TrackDB(object):
     def insert(self, **kwargs):
         """Execute insert query with given track info."""
 
+        columns = ", ".join([f"`{column}`" for column in kwargs.keys()])
+        values = ", ".join([f":{column}" for column in kwargs.keys()])
+
+        query = f"""
+            INSERT INTO tracks
+                ({columns})
+            VALUES
+                ({values});
+        """
+
         with self.dbcontext as c:
-            c.execute(DB_INSERT, kwargs)
+            c.execute(query, kwargs)
             c.execute(DB_SELECT_LAST_INSERT_ID)
             last_id = c.fetchone()
             return last_id[0]
