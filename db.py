@@ -14,6 +14,7 @@ DB_CREATE = """
         `id` INTEGER PRIMARY KEY AUTOINCREMENT,
         `artist` TEXT,
         `title` TEXT,
+        `source` TEXT,
         `played_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `playback_done_at` TIMESTAMP
     );

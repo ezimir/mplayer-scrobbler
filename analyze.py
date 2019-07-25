@@ -53,6 +53,16 @@ class ICYAnalyzer(object):
         for pattern in self.track_patterns:
             pattern_match = re.match(pattern, info)
             if pattern_match:
-                self.submit(**pattern_match.groupdict())
+                track_kwargs = pattern_match.groupdict()
+                self.submit(**self.get_submit_kwargs(track_kwargs))
                 break
+
+    def get_submit_kwargs(self, extra_kwargs):
+        """Created dictionary with track info arguments to be used for track submission to DB and through LastFM API."""
+
+        kwargs = {
+            "source": self.source,
+        }
+        kwargs.update(extra_kwargs)
+        return kwargs
 
