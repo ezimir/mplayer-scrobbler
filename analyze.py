@@ -19,6 +19,11 @@ class ICYAnalyzer(object):
         "(?P<artist>.*)\s+-\s+(?P<title>.*)",               # basic "Track - Title" format
     ]
 
+    # strings to ignore (station info, ads, ...)
+    omit_patterns = [
+        "^DrumandBass\.FM.*",
+    ]
+
     source = None
 
     def __init__(self, trigger_callback):
@@ -49,6 +54,11 @@ class ICYAnalyzer(object):
             return
 
         info = info_match.groupdict()["info"]
+
+        for pattern in self.omit_patterns:
+            pattern_match = re.match(pattern, info, re.IGNORECASE)
+            if pattern_match:
+                return
 
         for pattern in self.track_patterns:
             pattern_match = re.match(pattern, info)
