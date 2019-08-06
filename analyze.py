@@ -54,8 +54,6 @@ class ICYAnalyzer(object):
             return
 
         info = info_match.groupdict()["info"]
-        if not info["artist"] or not info["title"]:  # may capture empty strings from texts like " - "
-            return
 
         for pattern in self.omit_patterns:
             pattern_match = re.match(pattern, info, re.IGNORECASE)
@@ -64,10 +62,13 @@ class ICYAnalyzer(object):
 
         for pattern in self.track_patterns:
             pattern_match = re.match(pattern, info)
-            if pattern_match:
-                track_kwargs = pattern_match.groupdict()
-                self.submit(**self.get_submit_kwargs(track_kwargs))
-                break
+            if not pattern_match:
+                continue
+            track_kwargs = pattern_match.groupdict()
+            if not track_kwargs["artist"] or not track_kwargs["title"]:  # may capture empty strings from texts like " - "
+                continue
+            self.submit(**self.get_submit_kwargs(track_kwargs))
+            break
 
     def get_submit_kwargs(self, extra_kwargs):
         """Created dictionary with track info arguments to be used for track submission to DB and through LastFM API."""
