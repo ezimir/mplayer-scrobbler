@@ -54,6 +54,8 @@ class ICYAnalyzer(object):
             return
 
         info = info_match.groupdict()["info"]
+        if not info["artist"] or not info["title"]:  # may capture empty strings from texts like " - "
+            return
 
         for pattern in self.omit_patterns:
             pattern_match = re.match(pattern, info, re.IGNORECASE)
