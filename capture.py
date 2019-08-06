@@ -21,8 +21,13 @@ def capture(args):
     analyzer = ICYAnalyzer(trigger_callback = scrobbler.submit)
 
     buff = ""
+
     while True:
-        char = sys.stdin.read(1)
+        try:
+            char = sys.stdin.read(1)
+        except UnicodeDecodeError:
+            char = ""
+
         sys.stdout.write(char)
         if char == "\x1b":
             sys.stdout.flush()
