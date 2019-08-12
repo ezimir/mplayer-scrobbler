@@ -40,6 +40,10 @@ DB_SELECT_LAST_TRACK = """
 
 DEFAULT_DURATION = 3 * 60  # assume default track length is 3 minutes
 
+SOURCE_DURATION = {
+    "AH.FM": 60 * 60  # AH plays one hour mixes by default
+}
+
 
 
 class DBContext(object):
@@ -122,7 +126,7 @@ class TrackDB(object):
         with self.dbcontext as c:
             c.execute(query, kwargs)
 
-    def can_submit(self, artist, title):
+    def can_submit(self, artist, title, source):
         """Check whether given track details can be scrobbled."""
 
         last = self._select(DB_SELECT_LAST_TRACK)
@@ -134,7 +138,8 @@ class TrackDB(object):
         if last["artist"] == artist and last["title"] == title:
             playback_done = last["playback_done_at"]
             if not playback_done:
-                playback_done = last["played_at"] + timedelta(seconds = DEFAULT_DURATION)
+                duration = SOURCE_DURATION.get(source, DEFAULT_DURATION)
+                playback_done = last["played_at"] + timedelta(seconds = duration)
 
             now = datetime.utcnow().replace(microsecond = 0)
             # only allow re-scrobble of last track, if expected duration already passed
